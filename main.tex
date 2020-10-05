@@ -1,0 +1,99 @@
+\documentclass[a4paper]{spie}  %>>> use this instead for A4 paper
+
+\renewcommand{\baselinestretch}{1.0} % Change to 1.65 for double spacing
+ 
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\title{CI-CD practices with the TANGO-controls framework in the context of the Square Kilometre Array (SKA) telescope project}
+
+\author[a]{Di Carlo M.}
+\author[b]{Harding P.}
+\author[a]{Dolci M.}
+
+\affil[a]{INAF Osservatorio Astronomico d'Abruzzo, Teramo, Italy}
+\affil[b]{SKA Organisation, Macclesfield, UK}
+
+\authorinfo{Further author information: (Send correspondence to Di Carlo M.)\\Di Carlo M.: E-mail: matteo.dicarlo@inaf.it\\  Dolci M.: E-mail: mauro.dolci@inaf.it\\ Harding P.: E-mail: P.Harding@skatelescope.org}
+
+% Option to view page numbers
+\pagestyle{empty} % change to \pagestyle{plain} for page numbers   
+\setcounter{page}{301} % Set start page numbering at e.g. 301
+ 
+\begin{document} 
+\maketitle
+
+\begin{abstract}
+The Square Kilometre Array (SKA) project is an international effort to build two radio interferometers in South Africa and Australia to form one Observatory monitored and controlled from the global headquarters (GHQ) based in the United Kingdom at Jodrell Bank. The project is now approaching the end of its design phase and gearing up for the beginning of formal construction. The period between the end of the design phase and the start of the construction phase, has been called bridging and, one of its main goals is to promote some CI-CD practices among the software development teams. CI-CD is an acronym that stands for continuous integration and continuous delivery and/or continuous deployment. Continuous integration (CI) is the practice to merge all developers local (working) copies into the mainline very often (many times per day). Continuous delivery is the approach of developing software in short cycle ensuring that it can be released anytime and continuous deployment is the approach of delivering the software frequently and automatically. The present paper wants to analyse the decision taken by the system team (a specialized agile team devoted to developing and maintaining the tools that allows continuous practises) together with SKA architects in order to promote the CI-CD practices with TANGO controls framework. 
+\end{abstract}
+
+% Include a list of keywords after the abstract 
+\keywords{CI-CD, SKA, TANGO, Continuous integration, Continuous delivery, System team, TANGO controls framework, Bridging, Software development}
+
+\section{INTRODUCTION}
+\label{sec:intro}  % \label{} allows reference to this section
+
+When creating releases for the end-users, every big software industry faces the problem of integrating the different parts of the software and bring them to the production environment, that is where users work. The problem arises when many parts of the project are developed independently for a period of time and when merging them into the same branch, the process takes more than what was planned. In a classical waterfall software development process this is usual, but the same happens also following the classical git flow, also known as feature-based branching, that is when a branch is created for a particular feature. Considering, for example, one hundred developers working in the same repository each of them creating one or two branches. When merging it can easily happen to find conflicts and it become impossible, for a single developer, to solve all of them thus creating delay in publishing any release (in literature this is called "merge hell").
+This problem was analyses at the Square Kilometre Array (SKA) project, an international effort to build two radio interferometers in South Africa and Australia to form one Observatory monitored and controlled from the global headquarters (GHQ) based in the United Kingdom at Jodrell Bank.  
+The selected development process is Agile (Scaled Agile framework) that is basically incremental and iterative with a specialized team (known as system team) devoted to support the continuous Integration, test automation and continuous Deployment.
+
+\subsection{TANGO-controls overview}
+One of the most important decisions taken by the SKA project is the adoption of the TANGO-controls\cite{tango-controls} framework which is a middleware for connecting software processes together mainly based on the CORBA standard (Common Object Request Broker Architecture). The standard defines how to exposes the procedures of an object within a software process with the RPC protocol (Remote Procedure Call).  The TANGO framework extends the definition of object with the concept of Device which represents a real or virtual device to control that expose commands (that are procedures), attributes (like the state) and allows both synchronous and asynchronous communication with events generated from the attributes (for instance a change in the value can generate an event). Fig.~\ref{fig:tangodatamodel}  shows a module view of the framework.
+
+\begin{figure}[!htb]
+   \centering
+   \includegraphics*[width=1\columnwidth]{SimplifiedDataModel}
+   \caption{TANGO-Controls simplified data model.}
+   \label{fig:tangodatamodel}
+\end{figure}
+
+\subsection{Continuous Integration (CI)}
+CI refers to a set of development practices that requires developers to integrate code into a shared repository several times a day. Each check-in is then verified by an automated build, allowing teams to detect problems as early as possible.
+According to Martin Fowler~\cite{CI}, there are a number of best practices to implement to reach CI: 
+\begin{itemize}
+    \item Maintain a single source repository (for each component of the system) and try to minimize the use of branching, in favor of a single branch of the project currently under development. 
+    \item Automate the build (possibly build all in one command).
+    \item Together with the build, it must run also tests so to make the software self-testing (testing is crucial in CI because all the benefits of it come only if the test suite is good enough).
+    \item Every commit should build on an integration machine: the more the developers commit the better it is (common practice is at least once per day). In fact, this reduces the number of potential conflicts and once a conflict is found, since the change is small, the fix is easier (as a consequence if a build fails then it must be fixed immediately).
+    \item Keep the build fast so that a problem in integration can be found quickly.
+    \item Multi-stage deployment: every build software must be tested in different environments (testing, staging and so on).
+    \item Make it easy for anyone to get the latest executable version: all programmers should start the day by updating the project from the repository.
+    \item Everyone can see what’s happening: a testing environment with the latest software should be running.
+\end{itemize}
+
+\subsection{Continuous delivery and Continuous deployment (CD)}
+Continuous delivery~\cite{CD} refers to an extension of the CI that correspond to automating the delivery of new releases of software in a sustainable way. The release frequency can be decided according to the business requirement but the greatest benefit is reached by releasing as quickly as possible. 
+The deployment has to be predictable and sustainable, no matter if it is a large-scale distributed system, a complex production environment, an embedded system, or an app. Therefore the code must be in a deployable state. Testing is one of the most important activities and it needs to cover enough of your codebase. 
+While it is often assumed that frequent deployment means lower levels of stability and reliability in the systems, this is not the reality and, in general, in software the golden rule is “if it hurts, do it more often, and bring the pain forward” (~\cite{CD}, page 26).
+
+There are many patterns around deployment and, nowadays, all of them are related somehow to the DevOps culture. According to ~\cite{DevOps}, "DevOps is the outcome of applying the most trusted principles from the domain of physical manufacturing and leadership to the IT value stream. [...] The result is world-class quality, reliability, stability, and security at ever lower cost and effort; and accelerated flow and reliability throughout the technology value stream, including Product Management, Development, QA, IT Operations, and Infosec". Practically it corresponds to an increased collaboration between development (intended as requirement analysis, development and testing) and operations (intended as deployment, operations and maintenance). In the era of mainframes applications, it was common to have the two areas managed by different teams with the end result of having the development team with low (or zero) interest in the operations aspects (managed by a different team). Having a shared responsibility means that development teams share the problems of operations by working together in automating deployment operations and maintenance. It is also very important that teams are autonomous: they should be empowered to deploy a change to operations with no fear of failures. 
+Moreover, automation is one of the key elements in implementing a DevOps strategy, as it allows the teams to focus on what is valuable (code development, test result, etc. and not the deployment itself) and it reduces human errors.
+The importance of those practices can be summarized in reducing risks of integration issues, of releasing new software and overall in having a better software product. 
+Continuous deployment goes one step further as every single commit (!) to the software that passes all the stages of the build and test pipeline is deployed into the production environment. 
+
+\section{Infrastructure for CI-CD}
+The system engineering development process has been adopted in the initial design phase of the SKA project in order to reduce the complexity by dividing the project into simpler and easier to resolve elements. For every element of the system, an initial architecture has been developed, which comprises the software modules needed which requires a repository (each of them is a component of the system).
+
+Since all components need to get deployed and tested together, the \textit{first decision} taken is on how they need to be packaged.  A container is a standard unit of software that packages up code and all its dependencies so the component runs quickly and reliably across different computing environments. A Docker container image is a lightweight, standalone, executable package of software that includes everything needed to run an application: code (or more in general binary), runtime, system tools, system libraries and settings.
+
+
+
+Gitlab, k8s, helm, environment, makefile, ska-docker
+
+The infrastructure described in this section is possible thanks to the use of a Makefile in each project that allows to simplify the work on containerization and, overall, the automation of the code building, testing and packaging processes. In fact, with one single command, it is possible to compile the project, generate the docker image and test it by dynamically creating a container for that purpose.  The Makefile also allows to push the docker image to the SKA repository. 
+
+\subsection{Pipeline}
+
+\subsection{Subcharts architecture}
+
+
+\acknowledgments % equivalent to \section*{ACKNOWLEDGMENTS}       
+ 
+This work has been supported by Italian Government (MEF - Ministero dell'Economia e delle Finanze, MIUR - Ministero dell'Istruzione, dell'Università e della Ricerca).
+
+% References
+\bibliography{report} % bibliography data in report.bib
+\bibliographystyle{spiebib} % makes bibtex use spiebib.bst
+
+\end{document} 
