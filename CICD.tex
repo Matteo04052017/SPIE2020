@@ -19,7 +19,7 @@
 \affil[b]{SKA Organisation, Macclesfield, UK}
 \affil[c]{SKA South Africa, SA}
 
-\authorinfo{Further author information: (Send correspondence to Di Carlo M.)\\Di Carlo M.: E-mail: matteo.dicarlo@inaf.it\\  Dolci M.: E-mail: mauro.dolci@inaf.it\\ Harding P.: E-mail: P.Harding@skatelescope.org\\ Yilmaz U.: E-mail: u.yilmaz@skatelescope.org}
+\authorinfo{Further author information: (Send correspondence to Di Carlo M.)\\Di Carlo M.: E-mail: matteo.dicarlo@inaf.it\\  Dolci M.: E-mail: mauro.dolci@inaf.it\\ Harding P.: E-mail: P.Harding@skatelescope.org\\ Bartolini M.: E-mail: M.Bartolini@skatelescope.org\\ Yilmaz U.: E-mail: u.yilmaz@skatelescope.org}
 
 % Option to view page numbers
 \pagestyle{empty} % change to \pagestyle{plain} for page numbers
@@ -44,7 +44,7 @@ This problem was analysed in the Square Kilometre Array (SKA) project, an intern
 \textcolor{red}{Is it necessary to repeat the above about the SKA?  It is in the abstract.}
 The selected development process is SAFe Agile (Scaled Agile framework) that is basically incremental and iterative with a specialized team (known as the Systems Team) devoted to supporting the Continuous Integration, test automation and Continuous Deployment.
 
-\subsection{TANGO-controls overview}
+\subsection{TANGO-controls Overview}
 One of the most important decisions taken by the SKA project is the adoption of the TANGO-controls\cite{tango-controls} framework which is a middleware for connecting software processes together mainly based on the CORBA standard (Common Object Request Broker Architecture), for the purposes of controlling physical hardware elements. The standard defines how to exposes the procedures of an object within a software process with the RPC protocol (Remote Procedure Call).  The TANGO framework extends the definition of an object with the concept of a Device which represents a real or virtual device to control.  This exposes commands (that are procedures), and attributes (like the state) and allows both synchronous and asynchronous communication with events generated from the attributes (for instance a change in an attribute value can generate an event). Fig.~\ref{fig:tangodatamodel}  shows a module view of the framework.
 
 \begin{figure}[!htb]
@@ -68,7 +68,7 @@ According to Martin Fowler~\cite{CI}, there are a number of best practices to im
     \item Everyone can see what’s happening: a testing environment with the latest software should be running.
 \end{itemize}
 
-\subsection{Continuous delivery and Continuous deployment (CD)}
+\subsection{Continuous Delivery and Continuous Deployment (CD)}
 Continuous delivery~\cite{CD} refers to an extension of CI that corresponds to automating the delivery of new releases of software in a sustainable way. The release frequency can be decided according to the business requirements but the greatest benefit is reached by releasing as quickly as possible.
 The deployment has to be predictable and sustainable, irrespective of whether it is a large-scale distributed system, a complex production environment, an embedded system, or an app. Therefore the code must be in a deployable state. Testing is one of the most important activities and it needs to cover enough of your codebase.
 While it is often assumed that frequent deployment means lower levels of stability and reliability in the systems, this is not the reality and, in general, in software the golden rule is “if it hurts, do it more often, and bring the pain forward” (~\cite{CD}, page 26).
@@ -78,18 +78,18 @@ Moreover, automation is one of the key elements in implementing a DevOps strateg
 The importance of those practices can be summarized in reducing risks of integration issues, of releasing new software and overall in having a better software product.
 Continuous deployment goes one step further as every single commit (!) to the software that passes all the stages of the build and test pipeline is deployed into the production environment.
 
-\section{Containerization} \label{SKA-docker}
+\section{Containerisation} \label{SKA-docker}
 The \textit{system engineering} development process has been adopted in the initial design phase of the SKA project in order to reduce the complexity by dividing the project into simpler and easier to resolve elements. For every element of the system, an initial architecture has been developed, which comprises the software modules needed which corresponds to a repository (each of them is a component of the system).
 
 Since all components need to get deployed and tested together, the first decision taken is on how they need to be packaged.  A container is a standard unit of software that packages up code and all its dependencies so that the component runs quickly and reliably across different computing environments. A \textit{Docker container image} is a lightweight, standalone, executable package of software that includes everything needed to run an application: code (or more in general binary), runtime, system tools, system libraries and settings.
 
-The final product will be a containerized application which will be running in a system for managing those kind of applications. In specific the selection made for SKA was \textit{Kubernetes (k8s)} for container orchestration~\cite{kubernetes} and \textit{Helm Charts}~\cite{helm} for decalring runtime dependencies for k8s applications. In k8s everything is a resources which may be a service, a volume or a simple pod which is the smallest deployable units of computing. On the other hand, helm is a tool for managing Kubernetes deployments with charts where a chart is a package of pre-configured Kubernetes resources.
+The final product will be a containerized application which will be running in a system for managing those kind of applications. In specific the selection made for SKA was \textit{Kubernetes (K8s)} for container orchestration~\cite{kubernetes} and \textit{Helm Charts}~\cite{helm} for decalring runtime dependencies for K8s applications. In K8s everything is a resources which may be a service, a volume or a simple pod which is the smallest deployable units of computing. On the other hand, helm is a tool for managing Kubernetes deployments with charts where a chart is a package of pre-configured Kubernetes resources.
 
 The SKA repository \textit{SKA-docker}~\cite{SKA-docker} contains the definitions of a containerized TANGO environment and two Helm Charts: tango-base and archiver. The first one enables the installation of base services for a TANGO environment such as MariaDB service container, DatabaseDS service container, the TANGO test device and so on. The archiver enables the HDB++~\cite{hdb} application which is composed of a MariaDB service container, a configuration manager and an event subscriber.
 
 Every Helm Chart contains at a minimum the information concerning the version of the docker image and the pull policy (how to retrieve the image) for the orchestration. It also contains the needed information to initialize correctly the TANGO database (configuration of devices).
 
-The use of a \textit{Makefile} in each project simplifies the work of containerization and, overall, the automation of the code building, testing and packaging processes. In fact, with one single command, it is possible to compile the project, generate the docker image and test it by dynamically installing the related Helm Chart for that purpose.
+The use of a \textit{Makefile} in each project simplifies the work of containerisation and, overall, the automation of the code building, testing and packaging processes. In fact, with one single command, it is possible to compile the project, generate the docker image and test it by dynamically installing the related Helm Chart for that purpose.
 The Makefile also allows to push the docker images and Helm Charts to the SKA repository and, in general, it also enables the reusability of same build tool chain in different environments such as local development and CI-CD lifecyles.
 
 
@@ -103,7 +103,7 @@ The Makefile also allows to push the docker images and Helm Charts to the SKA re
 %    \label{fig:values_data_model}
 % \end{figure}
 
-\section{Subcharts architecture}
+\section{Sub-charts Architecture}
 
 \subsection{Introduction to Helm}
 A chart can have one or more dependencies charts, called sub-charts. According to the Helm documentation:
@@ -114,7 +114,7 @@ A chart can have one or more dependencies charts, called sub-charts. According t
     \item all charts (parent and sub-chart) can access the global values.
 \end{itemize}
 
-\textcolor{red}{I'm not sure if you want to capitalise all the references to Helm and Hem Charts ?.}
+\textcolor{red}{I'm not sure if you want to capitalise all the references to Helm and Helm Charts ?.}
 
 Let’s consider two charts, A and B where A depends on B. The file Chart.yaml for the chart A will specify the dependency and in the values file it is possible for chart A to override any value of chart B. Fig.~\ref{fig:a_parent_b} shows how to do it:
 
@@ -131,13 +131,13 @@ It is also important to consider the operational aspects of using dependencies w
     \item sorted by type followed by name; and then
     \item created/updated in that order.
 \end{itemize}
-This means that if chart A defines the following k8s resources:
+This means that if chart A defines the following K8s resources:
 \begin{itemize}
     \item namespace “A-Namespace”
     \item statefulset “A-StatefulSet”
     \item service “A-Service”
 \end{itemize}
-and chart B defines the following k8s resources:
+and chart B defines the following K8s resources:
 \begin{itemize}
     \item namespace “B-Namespace”
     \item statefulset “B-ReplicaSet”
@@ -170,7 +170,7 @@ At the moment, this is modelled in the repository SKAMPI where all charts are in
 \begin{itemize}
     \item Common testing, one place for all testing with an unclear distinction the various types of tests
     \item Not easy to find logs
-    \item Same k8s namespace for many deployments
+    \item Same K8s namespace for many deployments
     \item No versioning: charts are not versioned
 \end{itemize}
 
@@ -179,6 +179,8 @@ Because of the above problems, a new architecture has been selected which enable
     \item every chart can be deployed with its own tango eco-system,
     \item every chart can have tango-base, webjive and the archiver as dependencies.
 \end{itemize}
+
+\textcolor{red}{Do you need to explain what TMC is ?.}
 
 Fig. ~\ref{fig:tmc_shared_charts} shows how a generic chart (in this case TMC) which includes the shared charts. Every dependency must have a common condition on it, so that it will be possible to disable the shared charts if they are included in the parent umbrella. For instance if there is the need (for testing purposes) to have the TMC and the OET charts together the result will be fig. ~\ref{fig:tmc_oet_umbrella}.
 
@@ -243,7 +245,7 @@ In specific, to enable the GitLab pipeline to deploy and test the specific compo
 \begin{itemize}
     \item contain at least one helm chart
     \item have an environment
-    \item have a Makefile for k8s testing
+    \item have a Makefile for K8s testing
 \end{itemize}
 
 The test job, described in section \ref{pipeline}, is composed by the following steps (all made with the help of a Makefile):
@@ -261,7 +263,7 @@ The test job, described in section \ref{pipeline}, is composed by the following 
 
 The artifacts are the output of the tests and it will have the report both in xml and json but also other information like the pytest output.
 
-\section{Development workflow}
+\section{Development Workflow}
 There are two important assumption to understand the SKA development workflow: master branch shall always be stable and branches shall be short lived. With the term stable, it is meant that master branch always compiles and all automated tests run successfully. This also means that Every time a master branch results in a condition of instability, reverting to a condition of stability shall have
 precedence over any other activity on the repository.
 As a result, the selected development workflow for SKA is the following:
@@ -292,17 +294,17 @@ As a result, the selected development workflow for SKA is the following:
 \end{itemize}
 
 \section{Conclusion}
-All the decisions taken by the Systems Team try to follow some of the continuous integration suggestion from Martin Fowler’s paper. In particular:
+The majority of the decisions taken by the Systems Team follow the fundamental workflow as described by the Continuous Integration process outlined in the Martin Fowler’s paper. In particular:
 \begin{itemize}
     \item For each component of the system, there is only one repository with minimal use of branching that are short lived;
     \item build, tests and publish of artifacts are automated with the use of few commands;
-    \item Every commit triggers a build in a different machine (a container within the k8s cluster);
+    \item Every commit triggers a build in a different machine (a container within the K8s cluster);
     \item Once the artifacts are built (docker images, helm charts, etc.), the repository SKAMPI will create automatically a new deployment of the system and more tests are done at that level (i.e. system tests);
     \item Having a common repository (Nexus and GitLab page) for the code artifacts and for the test results artifacts make it very easy to download the latest changes from every team and for each component;
-    \item The integration environment is accessible for every developer and, in specific, is a specific namespace in a k8s cluster.
+    \item The integration environment is accessible for every developer and, in specific, is a specific namespace in a K8s cluster.
 \end{itemize}
 
-Besides, with the new subcharts architecture integration testing is done within the repositories of teams and brought in the SKAMPI repo when a new version is available making developers free to tests not only their work but also their work in conjunction of the one of another team.
+Besides, with the new sub-charts architecture integration testing is done within the repositories of teams and brought in the SKAMPI repository when a new version is available making developers free to tests not only their work but also their work in conjunction of the one of another team.
 
 \acknowledgments % equivalent to \section*{ACKNOWLEDGMENTS}
 

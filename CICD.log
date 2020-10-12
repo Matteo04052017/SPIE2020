@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.4.25)  13 OCT 2020 06:43
+This is pdfTeX, Version 3.14159265-2.6-1.40.20 (TeX Live 2019/Debian) (preloaded format=pdflatex 2020.4.25)  13 OCT 2020 07:58
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -333,50 +333,50 @@ Package pdftex.def Info: simple_skampi.png  used on input line 162.
 <tmc_shared_charts.png, id=127, 677.53125pt x 421.575pt>
 File: tmc_shared_charts.png Graphic file (type png)
 <use tmc_shared_charts.png>
-Package pdftex.def Info: tmc_shared_charts.png  used on input line 187.
+Package pdftex.def Info: tmc_shared_charts.png  used on input line 189.
 (pdftex.def)             Requested size: 243.91124pt x 151.76688pt.
 <tmc_oet_umbrella.png, id=129, 1179.40625pt x 521.95pt>
 File: tmc_oet_umbrella.png Graphic file (type png)
 <use tmc_oet_umbrella.png>
-Package pdftex.def Info: tmc_oet_umbrella.png  used on input line 194.
+Package pdftex.def Info: tmc_oet_umbrella.png  used on input line 196.
 (pdftex.def)             Requested size: 390.25948pt x 172.71391pt.
 <umbrella_skampi.png, id=133, 1166.3575pt x 342.27875pt>
 File: umbrella_skampi.png Graphic file (type png)
 <use umbrella_skampi.png>
-Package pdftex.def Info: umbrella_skampi.png  used on input line 203.
+Package pdftex.def Info: umbrella_skampi.png  used on input line 205.
 (pdftex.def)             Requested size: 487.8225pt x 143.15547pt.
 <dataEntity.jpg, id=137, 1031.855pt x 587.19376pt>
 File: dataEntity.jpg Graphic file (type jpg)
 <use dataEntity.jpg>
-Package pdftex.def Info: dataEntity.jpg  used on input line 214.
+Package pdftex.def Info: dataEntity.jpg  used on input line 216.
 (pdftex.def)             Requested size: 390.25948pt x 222.07867pt.
  [306 </home/piers/git/public/SPIE2020/tmc_shared_charts.png> </home/piers/git/public/SPIE2020/tmc_oet_umbrella.png>] [307 </home/piers/git/public/SPIE2020/umbrella_skampi.png> </home/piers/git/public/SPIE2020/dataEntity.jpg>]
 <CICD runtime.jpg, id=161, 418.2024pt x 192.4791pt>
 File: CICD runtime.jpg Graphic file (type jpg)
 <use CICD runtime.jpg>
-Package pdftex.def Info: CICD runtime.jpg  used on input line 232.
+Package pdftex.def Info: CICD runtime.jpg  used on input line 234.
 (pdftex.def)             Requested size: 390.25948pt x 179.6234pt.
  [308 </home/piers/git/public/SPIE2020/CICD runtime.jpg>] [309] (/home/piers/git/public/SPIE2020/CICD.bbl)
-Package atveryend Info: Empty hook `BeforeClearDocument' on input line 315.
+Package atveryend Info: Empty hook `BeforeClearDocument' on input line 317.
  [310]
-Package atveryend Info: Empty hook `AfterLastShipout' on input line 315.
+Package atveryend Info: Empty hook `AfterLastShipout' on input line 317.
  (/home/piers/git/public/SPIE2020/CICD.aux)
-Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 315.
-Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 315.
+Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 317.
+Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 317.
 Package rerunfilecheck Info: File `CICD.out' has not changed.
-(rerunfilecheck)             Checksum: 26D7F017401ADBCD53B4DB51CA41C9C0;724.
-Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 315.
+(rerunfilecheck)             Checksum: C93AD9E1F4AD4724992909E2E467747E;725.
+Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 317.
  ) 
 Here is how much of TeX's memory you used:
  7146 strings out of 483183
  103050 string characters out of 5966292
- 364729 words of memory out of 5000000
+ 364781 words of memory out of 5000000
  21981 multiletter control sequences out of 15000+600000
  542299 words of font info for 63 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  34i,6n,37p,1405b,375s stack positions out of 5000i,500n,10000p,200000b,80000s
  </home/piers/.texlive2019/texmf-var/fonts/pk/ljfour/jknappen/ec/tcrm1000.600pk></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/share/texlive/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt10.pfb>
-Output written on /home/piers/git/public/SPIE2020/CICD.pdf (10 pages, 587000 bytes).
+Output written on /home/piers/git/public/SPIE2020/CICD.pdf (10 pages, 586985 bytes).
 PDF statistics:
  240 PDF objects out of 1000 (max. 8388607)
  195 compressed objects within 2 object streams
