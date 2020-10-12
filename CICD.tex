@@ -294,7 +294,7 @@ As a result, the selected development workflow for SKA is the following:
 \end{itemize}
 
 \section{Conclusion}
-The majority of the decisions taken by the Systems Team follow the fundamental workflow as described by the Continuous Integration process outlined in the Martin Fowler’s paper. In particular:
+The majority of the decisions taken by the Systems Team follow the workflow as described by the Continuous Integration process outlined in the Martin Fowler’s paper. In particular:
 \begin{itemize}
     \item For each component of the system, there is only one repository with minimal use of branching that are short lived;
     \item build, tests and publish of artifacts are automated with the use of few commands;
@@ -304,7 +304,7 @@ The majority of the decisions taken by the Systems Team follow the fundamental w
     \item The integration environment is accessible for every developer and, in specific, is a specific namespace in a K8s cluster.
 \end{itemize}
 
-Besides, with the new sub-charts architecture integration testing is done within the repositories of teams and brought in the SKAMPI repository when a new version is available making developers free to tests not only their work but also their work in conjunction of the one of another team.
+In addition, with the new sub-charts architecture, integration testing is done within the repositories of teams and brought in to the SKAMPI integration testing repository when a new version is created.  This enables developers to test not only their own work in isolation but also their work in conjunction with the developments contributed by other teams.
 
 \acknowledgments % equivalent to \section*{ACKNOWLEDGMENTS}
 
