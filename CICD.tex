@@ -32,7 +32,7 @@ The Square Kilometre Array (SKA) project is an international effort to build two
 % Include a list of keywords after the abstract 
 \keywords{CI-CD, SKA, TANGO, Continuous integration, Continuous delivery, System team, TANGO controls framework, Bridging, Software development}
 
-\section{INTRODUCTION}
+\section{Introduction}
 \label{sec:intro}  % \label{} allows reference to this section
 
 When creating releases for the end-users, every big software industry faces the problem of integrating the different parts of the software and bring them to the production environment, that is where users work. The problem arises when many parts of the project are developed independently for a period of time and when merging them into the same branch, the process takes more than what was planned. In a classical waterfall software development process this is usual, but the same happens also following the classical git flow, also known as feature-based branching, that is when a branch is created for a particular feature. Considering, for example, one hundred developers working in the same repository each of them creating one or two branches. When merging it can easily happen to find conflicts and it become impossible, for a single developer, to solve all of them thus creating delay in publishing any release (in literature this is called "merge hell").
@@ -73,20 +73,34 @@ Moreover, automation is one of the key elements in implementing a DevOps strateg
 The importance of those practices can be summarized in reducing risks of integration issues, of releasing new software and overall in having a better software product. 
 Continuous deployment goes one step further as every single commit (!) to the software that passes all the stages of the build and test pipeline is deployed into the production environment. 
 
-\section{Infrastructure for CI-CD}
+\section{Containerization} \label{SKA-docker}
 The \textit{system engineering} development process has been adopted in the initial design phase of the SKA project in order to reduce the complexity by dividing the project into simpler and easier to resolve elements. For every element of the system, an initial architecture has been developed, which comprises the software modules needed which requires a repository (each of them is a component of the system).
 
 Since all components need to get deployed and tested together, the first decision taken is on how they need to be packaged.  A container is a standard unit of software that packages up code and all its dependencies so the component runs quickly and reliably across different computing environments. A \textit{Docker container image} is a lightweight, standalone, executable package of software that includes everything needed to run an application: code (or more in general binary), runtime, system tools, system libraries and settings.
 
 The final product will be a containerized application which will be running in a system for managing those kind of applications. In specific the selection made for SKA was \textit{Kubernetes (k8s)} for container orchestration~\cite{kubernetes} and \textit{Helm}~\cite{helm} for packaging k8s applications. In k8s everything is a resources which can be a service, a volume or a simple pod which is the smallest deployable units of computing. On the other hand, helm is a tool for managing Kubernetes deployments with charts where a chart is a package of pre-configured Kubernetes resources. 
 
+The SKA repository \textit{SKA-docker}~\cite{SKA-docker} contains the definitions of a containerized TANGO environment and two helm charts: tango-base and archiver. The first one enable to install the base services for a TANGO environment such as MariaDB service container, DatabaseDs service container, the TANGO test device and so on. The archiver enable the HDB++~\cite{HDB++} application which is composed by a MariaDB service container, a configuration manager and a event subscriber. 
+
 Every chart contains at least information concerning the version of the docker image and the pull policy for the orchestration. It also contains the needed information to initialize correctly the TANGO database (configuration of devices). 
 
-Another important decision taken for having a good infrastructure for CI-CD is the use of a \textit{Makefile} in each project that allows to simplify the work on containerization and, overall, the automation of the code building, testing and packaging processes. In fact, with one single command, it is possible to compile the project, generate the docker image and test it by dynamically creating a container for that purpose. The Makefile also allows to push the docker image to the SKA repository. The use of makefiles also enables the reusability of same build tool chain in different environments such as local development and CI-CD lifecyles.
+The use of a \textit{Makefile} in each project simplifies the work on containerization and, overall, the automation of the code building, testing and packaging processes. In fact, with one single command, it is possible to compile the project, generate the docker image and test it by dynamically installing the related helm chart for that purpose. 
+The Makefile also allows to push the docker images and helm charts to the SKA repository and, in general, it also enables the reusability of same build tool chain in different environments such as local development and CI-CD lifecyles.
 
-\subsection{Subcharts architecture}
 
-\subsubsection{Introduction to helm}
+% \subsubsection{TANGO-util library chart}
+% A library chart is a type of Helm chart that defines chart primitives or definitions which can be % shared by Helm templates in other charts. In SKAMPI, many charts are a collections of TANGO device % servers so it is possible to harmonize their definition with a library. Fig.~\ref{fig:values_data_model} shows a data model diagram for the harmonized values file.
+
+% \begin{figure}[!htb]
+%    \centering
+%    \includegraphics*[width=0.8\columnwidth]{values_data_model}
+%    \caption{Data model for the values file}
+%    \label{fig:values_data_model}
+% \end{figure}
+
+\section{Subcharts architecture}
+
+\subsection{Introduction to helm}
 A chart can have one or more dependencies charts, called sub-charts. According to the helm documentation:
 \begin{itemize}
     \item a sub-chart is stand-alone (cannot depend on a parent chart),
@@ -132,7 +146,7 @@ Then the result of the helm install command for chart A will be:
     \item A-StatefulSet.
 \end{itemize}
 
-\subsubsection{Architecture}
+\subsection{Architecture}
 
 The SKA MVP Product Integration, or SKAMPI~\cite{SKAMPI}, is both the set of software artefacts, and the corresponding repository and continuous integration facilities that allow for the development, testing, and integration of the SKA prototype software systems. It represents the main effort to integrate the components from the different SKA elements with each other, with the goal to provide first deployable versions of SKA software. A partial dependency diagram for the helm charts available within this project is represented in fig.~\ref{fig:skampi}. 
 
@@ -143,7 +157,7 @@ The SKA MVP Product Integration, or SKAMPI~\cite{SKAMPI}, is both the set of sof
    \label{fig:skampi}
 \end{figure}
 
-Leaving out the details of the specific components of SKA, fig.~\ref{fig:skampi} shows that all charts depend on some shared charts, like tango-base (refer to section \ref{SKA-docker}) and, optionally, archiver (refer to section \ref{SKA-docker}) and webjive.  
+Leaving out the details of the specific components of SKA, fig.~\ref{fig:skampi} shows that all charts depend on some shared charts, like tango-base (refer to section \ref{SKA-docker}) and, optionally, archiver (refer to section \ref{SKA-docker}) and webjive~\cite{webjive}.  
 At the moment, this is modelled in the repository SKAMPI where all charts are installed with helm templating instead of the normal installation. There are a number of disadvantages in this model specifically:
 
 \begin{itemize}
@@ -184,7 +198,7 @@ Fig. ~\ref{fig:umbrella_skampi} is the result of the refactoring of fig. ~\ref{f
    \label{fig:umbrella_skampi}
 \end{figure}
 
-\subsection{Pipeline} \label{pipeline}
+\section{Pipeline} \label{pipeline}
 
 In order to bring everything together for a complete CI-CD toolchain, Gitlab~\cite{gitlab} was selected. The data model for a generic SKA software is shown in figure~\ref{fig:pipelinedatamodel}.
 
@@ -213,7 +227,7 @@ At run time, for every change of the SKA software (i.e. a commit in the source c
    \label{fig:cicdruntime}
 \end{figure}
 
-\subsection{Testing}
+\section{Testing}
 The most important best practice for CI is testing so the main question now is how a generic component of SKA can be tested with the above architecture?
 In SKA, testing has been split into two distinct types: pre-deployment and post-deployment tests. The deployment happens when a runner execute a job with an environment keyword. By doing so, job is linked to a kubernetes cluster defined for every project in the ska telescope group (and called \textit{syscore}). 
 While the pre-deployment tests (namely unit tests) are all made without the real system to be online, the other ones (namely integration and system tests) needs more than one component to be up and running. 
@@ -240,18 +254,35 @@ The test job, described in section \ref{pipeline}, is composed by the following 
 
 The artifacts are the output of the tests and it will have the report both in xml and json but also other information like the pytest output.
 
-\subsection{SKA-docker} \label{SKA-docker}
-One of the most important ska repository is the one called \textit{SKA-docker}~\cite{SKA-docker} and contains the definition of a containerized TANGO environment and two helm charts for installing it in k8s: tango-base and webjive. 
-
-\subsubsection{TANGO-util library chart}
-A library chart is a type of Helm chart that defines chart primitives or definitions which can be shared by Helm templates in other charts. In SKAMPI, many charts are a collections of TANGO device servers so it is possible to harmonize their definition with a library. Fig.~\ref{fig:values_data_model} shows a data model diagram for the harmonized values file.
-
-\begin{figure}[!htb]
-   \centering
-   \includegraphics*[width=0.8\columnwidth]{values_data_model}
-   \caption{Data model for the values file}
-   \label{fig:values_data_model}
-\end{figure}
+\section{Development workflow}
+There are two important assumption to understand the SKA development workflow: master branch shall always be stable and branches shall be short lived. With the term stable, it is meant that master branch always compiles and all automated tests run successfully. This also means that Every time a master branch results in a condition of instability, reverting to a condition of stability shall have
+precedence over any other activity on the repository.
+As a result, the selected development workflow for SKA is the following: 
+\begin{itemize}
+    \item A developer takes a copy of the current code base on which to work
+    \item Work is started on a new branch based on the story being implemented
+    \item As the developer advances in the implementation commits are done on the local git repo.
+    \item Unit tests are written and run in the development environment until successfully executed
+    \item Once the tests pass the developer pushes the changes into a remote branch
+    \item The CI server (Gitlab)
+    \begin{itemize}
+        \item Checks out changes when they occur
+        \item Runs static code analysis and provide feedback to the developer
+        \item builds the system and runs unit and integration tests on the branch
+        \item Provide feedback to the developer about test fail or success
+        \item Provide feedback about coverage metrics
+    \end{itemize}
+    \item Once all tests execute successfully on the branch, the developer makes a pull request for merging the changes into master.
+    \item As part of the pull request the code is reviewed by other developers.
+    \item Code is merged into master branch
+    \item The CI server (Gitlab)
+    \begin{itemize}
+        \item Runs all tests on the master branch
+        \item Releases deployable artefacts for testing (reports, code analysis, etc.)
+        \item Assigns a build label to the version of the code it just built (i.e. docker image version)
+        \item Alerts the team if the build or tests fail which fixes the issue asap
+    \end{itemize}
+\end{itemize}
 
 \section{Conclusion}
 All the decisions taken by the system team try to follow some of the continuous integration suggestion from Martin Fowler’s paper. In particular:
