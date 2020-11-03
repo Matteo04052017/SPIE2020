@@ -40,9 +40,7 @@ The Square Kilometre Array (SKA) project is an international effort to build two
 \label{sec:intro}  % \label{} allows reference to this section
 
 When creating releases for the end-users, every large software endevour faces the problem of integrating the different parts of the software solution and bringing them to the production environment where users work. The problem arises when many parts of the project are developed independently for a period of time and when merging them into the same branch, the process takes more than what was planned. In a classic Waterfall Software Development process this is usual, but the same also happens when following the classic Git Flow, also known as feature-based branching, which is when a branch is created for a particular feature. Considering, for example, one hundred developers working in the same repository each of them creating one or two branches. When merging it can easily happen to find conflicts and it become impossible, for a single developer, to solve all of them thus creating delay in publishing any release (in literature this is called "merge hell").
-This problem was analysed in the Square Kilometre Array (SKA) project, an international effort to build two radio interferometers in South Africa and Australia to form one Observatory monitored and controlled from the global headquarters (GHQ) based in the United Kingdom at Jodrell Bank.
-\textcolor{red}{Is it necessary to repeat the above about the SKA?  It is in the abstract.}
-The selected development process is SAFe Agile (Scaled Agile framework) that is basically incremental and iterative with a specialized team (known as the Systems Team) devoted to supporting the Continuous Integration, test automation and Continuous Deployment.
+In the Square Kilometre Array (SKA) project, The selected development process is SAFe Agile (Scaled Agile framework) that is basically incremental and iterative with a specialized team (known as the Systems Team) devoted to supporting the Continuous Integration, test automation and Continuous Deployment.
 
 \subsection{TANGO-controls Overview}
 One of the most important decisions taken by the SKA project is the adoption of the TANGO-controls\cite{tango-controls} framework which is a middleware for connecting software processes together mainly based on the CORBA standard (Common Object Request Broker Architecture), for the purposes of controlling physical hardware elements. The standard defines how to exposes the procedures of an object within a software process with the RPC protocol (Remote Procedure Call).  The TANGO framework extends the definition of an object with the concept of a Device which represents a real or virtual device to control.  This exposes commands (that are procedures), and attributes (like the state) and allows both synchronous and asynchronous communication with events generated from the attributes (for instance a change in an attribute value can generate an event). Fig.~\ref{fig:tangodatamodel}  shows a module view of the framework.
@@ -114,8 +112,6 @@ A chart can have one or more dependencies charts, called sub-charts. According t
     \item all charts (parent and sub-chart) can access the global values.
 \end{itemize}
 
-\textcolor{red}{I'm not sure if you want to capitalise all the references to Helm and Helm Charts ?.}
-
 Let’s consider two charts, A and B where A depends on B. The file Chart.yaml for the chart A will specify the dependency and in the values file it is possible for chart A to override any value of chart B. Fig.~\ref{fig:a_parent_b} shows how to do it:
 
 \begin{figure}[!htb]
@@ -180,9 +176,7 @@ Because of the above problems, a new architecture has been selected which enable
     \item every chart can have tango-base, webjive and the archiver as dependencies.
 \end{itemize}
 
-\textcolor{red}{Do you need to explain what TMC is ?.}
-
-Fig. ~\ref{fig:tmc_shared_charts} shows how a generic chart (in this case TMC) which includes the shared charts. Every dependency must have a common condition on it, so that it will be possible to disable the shared charts if they are included in the parent umbrella. For instance if there is the need (for testing purposes) to have the TMC and the OET charts together the result will be fig. ~\ref{fig:tmc_oet_umbrella}.
+Fig. ~\ref{fig:tmc_shared_charts} shows how a generic chart (in this case the SKA component called TMC) which includes the shared charts. Every dependency must have a common condition on it, so that it will be possible to disable the shared charts if they are included in the parent umbrella. For instance if there is the need (for testing purposes) to have the TMC and the OET charts together the result will be fig. ~\ref{fig:tmc_oet_umbrella}.
 
 \begin{figure}[!htb]
    \centering
@@ -227,7 +221,8 @@ The entry point of the diagram is the Pipeline that is composed by many jobs (i.
     \item Pages, where test results, documentations and logs are published (the name comes directly by the GitLab technology).
 \end{itemize}
 
-At run time, for every change of the SKA software (i.e. a commit in the source code repository - GitLab) one or more executors (i.e. GitLab runners) execute all the job for the specific pipeline defined in a yaml file and part of the git revision. Each job can deploy the software in the repository into different environments like testing/staging/production and can produce artifacts (which can be a container image, documentation or test result) stored in an artifact repository. The following diagram, Fig.~\ref{fig:cicdruntime} shows the above concepts.
+Fig.~\ref{fig:cicdruntime} shows (without a specific formalism) the run-time behaviour of the selected technologies working together. At the center of the diagram there is a kubernetes cluster defined for every project in the SKA telescope group (and called \textit{syscore}). Outside the K8s cluster, there are the GitLab repository, the GitLab pages (part of GitLab which represent a generic artifact ussed for storing pipeline artifacts such as test result), the Nexus Artifact repository\cite{nexus} and the Elasticsearch\cite{elastcsearch} data store (for logs). 
+Inside the cluster, in an isolated K8s namespace, there are the GitLab runner related K8s resources which check, every 30 seconds, if there are pipelines to execute. If the runner found a pipeline, it creates a K8s pos which executes all the jobs defined in the configuration file (and part of the git revision). Each created pod can (potentially) deploy a (umbrella) chart needed for the specific testing of the repository in an isolated namespace (i.e. an isolated environment). The deployment installed can then be tested producing artifacts that will be stored in the correct artifacts repository.
 
 \begin{figure}[!htb]
    \centering
@@ -238,7 +233,7 @@ At run time, for every change of the SKA software (i.e. a commit in the source c
 
 \section{Testing}
 The most important best practice for CI is testing so the main question now is how a generic component of SKA can be tested with the above architecture?
-In SKA, testing has been split into two distinct types: pre-deployment and post-deployment tests. The deployment happens when a runner execute a job with an environment keyword. By doing so, job is linked to a kubernetes cluster defined for every project in the ska telescope group (and called \textit{syscore}).
+In SKA, testing has been split into two distinct types: pre-deployment and post-deployment tests. The deployment happens when a runner execute a job with an environment keyword. By doing so, the job is linked to the k8s cluster \textit{syscore}.
 While the pre-deployment tests (namely unit tests) are all made without the real system to be online, the other ones (namely integration and system tests) needs more than one component to be up and running.
 SKA is composed by many different modules, each of them with its own repository and different requirements for the components needed for its integration and system testing. For each of them, an umbrella chart has been introduced which enabled the specific component to be deployed together with its requirements.
 In specific, to enable the GitLab pipeline to deploy and test the specific component each repository must:
@@ -248,9 +243,9 @@ In specific, to enable the GitLab pipeline to deploy and test the specific compo
     \item have a Makefile for K8s testing
 \end{itemize}
 
-The test job, described in section \ref{pipeline}, is composed by the following steps (all made with the help of a Makefile):
+The test job, introduced in section \ref{pipeline}, is composed by the following steps (all made with the help of a Makefile):
 \begin{itemize}
-    \item install: installs the chart in the namespace specified in the environment
+    \item install: installs the chart (with the sub-charts needed) in the namespace specified in the environment
     \item wait: wait for every container to be running
     \item test:
     \begin{itemize}
