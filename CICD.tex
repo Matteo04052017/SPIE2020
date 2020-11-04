@@ -6,7 +6,7 @@
 \usepackage{graphicx}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 
-\title{CI-CD practices with the TANGO-controls framework in the context of the Square Kilometre Array (SKA) telescope project}
+\title{CI/CD practices with the TANGO-controls framework in the context of the Square Kilometre Array (SKA) telescope project}
 
 \author[a]{Di Carlo M.}
 \author[b]{Yilmaz U.}
@@ -30,11 +30,11 @@
 \maketitle
 
 \begin{abstract}
-The Square Kilometre Array (SKA) project is an international effort to build two radio interferometers in South Africa and Australia to form one Observatory monitored and controlled from the global headquarters (GHQ) based in the United Kingdom at Jodrell Bank. The project is now approaching the end of its design phase and gearing up for the beginning of formal construction. The period between the end of the design phase and the start of the construction phase, has been called bridging and, one of its main goals is to promote some CI-CD practices among the software development teams. CI-CD is an acronym that stands for continuous integration and continuous delivery and/or continuous deployment. Continuous integration (CI) is the practice of merging all developers local (working) copies into the mainline very often (many times per day). Continuous delivery is the approach of developing software in short cycles ensuring that it can be released anytime and continuous deployment is the approach of delivering the software into operational use frequently and automatically. The present paper analyses the decisions taken by the Systems Team (a specialized agile team devoted to developing and maintaining the tools that allows continuous practises) together with SKA architects in order to promote the CI-CD practices with the TANGO controls framework.
+The Square Kilometre Array (SKA) project is an international effort to build two radio interferometers in South Africa and Australia to form one Observatory monitored and controlled from the global headquarters (GHQ) based in the United Kingdom at Jodrell Bank. The project is now approaching the end of its design phase and gearing up for the beginning of formal construction. The period between the end of the design phase and the start of the construction phase, has been called bridging and, one of its main goals is to promote some CI/CD practices among the software development teams. CI/CD is an acronym that stands for continuous integration and continuous delivery and/or continuous deployment. Continuous integration (CI) is the practice of merging all developers local (working) copies into the mainline very often (many times per day). Continuous delivery is the approach of developing software in short cycles ensuring that it can be released anytime and continuous deployment is the approach of delivering the software into operational use frequently and automatically. The present paper analyses the decisions taken by the Systems Team (a specialized agile team devoted to developing and maintaining the tools that allows continuous practises) together with SKA architects in order to promote the CI/CD practices with the TANGO controls framework.
 \end{abstract}
 
 % Include a list of keywords after the abstract
-\keywords{CI-CD, SKA, TANGO, Continuous Integration, Continuous Delivery, Systems Team, TANGO controls framework, Bridging, Software Development}
+\keywords{CI/CD, SKA, TANGO, Continuous Integration, Continuous Delivery, Systems Team, TANGO controls framework, Bridging, Software Development}
 
 \section{Introduction}
 \label{sec:intro}  % \label{} allows reference to this section
@@ -82,14 +82,14 @@ The \textit{system engineering} development process has been adopted in the init
 
 Since all components need to get deployed and tested together, the first decision taken is on how they need to be packaged.  A container is a standard unit of software that packages up code and all its dependencies so that the component runs quickly and reliably across different computing environments. A \textit{Docker container image} is a lightweight, standalone, executable package of software that includes everything needed to run an application: code (or more in general binary), runtime, system tools, system libraries and settings.
 
-The final product will be a containerized application which will be running in a system for managing those kind of applications. In specific the selection made for SKA was \textit{Kubernetes (K8s)} for container orchestration~\cite{kubernetes} and \textit{Helm Charts}~\cite{helm} for decalring runtime dependencies for K8s applications. In K8s everything is a resources which may be a service, a volume or a simple pod which is the smallest deployable units of computing. On the other hand, helm is a tool for managing Kubernetes deployments with charts where a chart is a package of pre-configured Kubernetes resources.
+The final product will be a containerized application which will be running in a system for managing those kind of applications. In specific the selection made for SKA was \textit{Kubernetes (K8s)} for container orchestration~\cite{kubernetes} and \textit{Helm Charts}~\cite{helm} for declaring runtime dependencies for K8s applications. In K8s everything is a resource which may be a service, a volume or a simple pod which is the smallest deployable units of computing consisting of one (or many) container. The resources live in a cluster (a set of machines connected together) and share a predefined network (for service discovery),storage and other resources like computing power. On the other hand, helm is a tool for managing Kubernetes deployments with charts where a chart is a package of pre-configured Kubernetes resources.
 
-The SKA repository \textit{SKA-docker}~\cite{SKA-docker} contains the definitions of a containerized TANGO environment and two Helm Charts: tango-base and archiver. The first one enables the installation of base services for a TANGO environment such as MariaDB service container, DatabaseDS service container, the TANGO test device and so on. The archiver enables the HDB++~\cite{hdb} application which is composed of a MariaDB service container, a configuration manager and an event subscriber.
+The SKA repository \textit{SKA-docker}~\cite{SKA-docker} contains the definitions of a containerized TANGO environment and two Helm Charts: tango-base and archiver. The first one enables the installation of base services for a TANGO environment such as MariaDB service container, DatabaseDS service container, the TANGO test device and so on. The archiver enables the HDB++~\cite{hdb} application which is composed of a MariaDB service container, a configuration manager and an event subscriber. Tango-base and archiver provides the basic services and tools for the developers to easily develop their own tango device servers and applications while maintaining a consistent environment.
 
-Every Helm Chart contains at a minimum the information concerning the version of the docker image and the pull policy (how to retrieve the image) for the orchestration. It also contains the needed information to initialize correctly the TANGO database (configuration of devices).
+Every Helm Chart contains at a minimum the information concerning the version of the docker image and the pull policy (how to retrieve the image) for the orchestration. It also contains the needed information to correctly initialize the TANGO database (configuration of devices) and how it is exposed for other applications for discovery in the cluster.
 
-The use of a \textit{Makefile} in each project simplifies the work of containerisation and, overall, the automation of the code building, testing and packaging processes. In fact, with one single command, it is possible to compile the project, generate the docker image and test it by dynamically installing the related Helm Chart for that purpose.
-The Makefile also allows to push the docker images and Helm Charts to the SKA repository and, in general, it also enables the reusability of same build tool chain in different environments such as local development and CI-CD lifecyles.
+Througout the SKA repositories, \textit{Makefiles} are selected as an abstraction and organisation layer to eliminate language specific scripts for building, testing and deployment and to promote ease of use in CI/CD. The use of a \textit{Makefile} in each project simplifies the work of containerisation and, overall, the automation of the code building, testing and packaging processes. In fact, with one single command, it is possible to compile the project, generate the docker image and test it by dynamically installing the related Helm Chart for that purpose.
+The Makefile also allows to push the docker images and Helm Charts to the SKA artifact repository and, in general, it also enables the reusability of same build tool chain in different environments such as local development and CI/CD lifecyle.
 
 
 % \subsubsection{TANGO-util library chart}
@@ -204,7 +204,7 @@ Fig. ~\ref{fig:umbrella_skampi} is the result of the refactoring of fig. ~\ref{f
 
 \section{Pipeline} \label{pipeline}
 
-In order to bring everything together for a complete CI-CD toolchain, GitLab~\cite{gitlab} was selected. The data model for a generic SKA software is shown in figure~\ref{fig:pipelinedatamodel}.
+In order to bring everything together for a complete CI/CD toolchain, GitLab~\cite{gitlab} was selected. The data model for a generic SKA software is shown in figure~\ref{fig:pipelinedatamodel}.
 
 \begin{figure}[!htb]
    \centering
