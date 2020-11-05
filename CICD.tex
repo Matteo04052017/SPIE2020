@@ -113,7 +113,7 @@ A chart can have one or more dependencies charts, called sub-charts. According t
     \item all charts (parent and sub-chart) can access the global values.
 \end{itemize}
 
-Let’s consider two charts, A and B where A depends on B. The file Chart.yaml for the chart A will specify the dependency and in the values file it is possible for chart A to override any value of chart B. Fig.~\ref{fig:a_parent_b} shows how to do it:
+Let’s consider two charts, A and B where A depends on B. The file Chart.yaml for the chart A will specify the dependency and in the values file it is possible for chart A to override any value of chart B. Fig.~\ref{fig:a_parent_b} shows how to do it.
 
 \begin{figure}[!htb]
    \centering
@@ -213,21 +213,23 @@ In order to bring everything together for a complete CI/CD toolchain, GitLab~\ci
    \label{fig:pipelinedatamodel}
 \end{figure}
 
-The entry point of the diagram is the Pipeline that is composed by many jobs (i.e. shell scripts). This has been standardised for each project in:
+The entry point of the diagram is the Pipeline that is composed by many jobs (i.e. shell scripts).  This has been standardised for each project regardless of the artifact each project delivers so that the same standardised steps for code/configuration and helm charts are followed:
 \begin{itemize}
-    \item Build, where code is compiled and a docker image is created;
     \item Linting, where code is analysed against a set (or multiple sets) of coding rules in order to check if it follows the best practices decided;
+    \item Build, where code is compiled and a docker image is created;
     \item Test, where the compiled package (and docker image) are tested; tests are grouped into Fast / Medium / Slow / Very Slow categories.
     \item Publish, where the coding artifacts are published;
     \item Pages, where test results, documentations and logs are published (the name comes directly by the GitLab technology).
 \end{itemize}
 
-Fig.~\ref{fig:cicdruntime} shows (without a specific formalism) the run-time behaviour of the selected technologies working together. At the center of the diagram there is a kubernetes cluster defined for every project in the SKA telescope group (and called \textit{syscore}). Outside the K8s cluster, there are the GitLab repository, the GitLab pages (part of GitLab which represent a generic artifact ussed for storing pipeline artifacts such as test result), the Nexus Artifact repository\cite{nexus} and the Elasticsearch\cite{elastcsearch} data store (for logs). 
-Inside the cluster, in an isolated K8s namespace, there are the GitLab runner related K8s resources which check, every 30 seconds, if there are pipelines to execute. If the runner found a pipeline, it creates a K8s pos which executes all the jobs defined in the configuration file (and part of the git revision). Each created pod can (potentially) deploy a (umbrella) chart needed for the specific testing of the repository in an isolated namespace (i.e. an isolated environment). The deployment installed can then be tested producing artifacts that will be stored in the correct artifacts repository.
+The pipeline is respected as the main hub of the software development in which code is built, tested, verified, published and integrated. The above steps are used in local development (as same shell scripts are available thanks to the \textit{Makefile} targets), merge workflow, QA, integration and releasing. Moreover, by having almost similar environment for different stages of software lifecyle, the differences between development and operational are eliminated.
+
+Fig.~\ref{fig:cicdruntime} shows (without a specific formalism) the run-time behaviour of the selected technologies working together. At the center of the diagram there is a kubernetes cluster defined for every project in the SKA telescope group (and called \textit{syscore}). Outside the K8s cluster, there are the GitLab code repositories and Pages\cite{gitlab} (part of GitLab which represent a generic artifact used for storing pipeline artifacts such as test result), the Nexus Artifact repository\cite{nexus} to store packaged code artifacts, the ELK stack (Elasticsearch, Logstash and Kibana)\cite{elastcsearch} for logging, prometheus\cite{prometheus} for metric collection and ceph\cite{ceph} for a distribute storage solution. 
+Inside the cluster, in an isolated K8s namespace, there are the GitLab runner related K8s resources which check, every 30 seconds, if there are pending pipelines triggered manually or pulled by the the resources.  If the runner finds a pipeline, it creates a K8s pod which executes all the jobs defined in the configuration file (and part of the git revision). Each created pod can (potentially) deploy a (umbrella) chart needed for the specific testing of the repository in an isolated namespace (i.e. an isolated environment). The deployment installed can then be tested and the result of the job will be reported to gitlab producing artifacts that will be stored in the correct artifacts repository. During any stage of the pipeline, jobs could also download necessary dependencies from the artifact repository. Depending on the type of the job, the pipeline is also used for deploying of the permanent running version of the SKAMPI or any other resources that are needed. \textit{syscore} kubernetes cluster is also equipped with monitoring solutions to examine the health and performance of the cluster and any resource that is deployed in it. Storage and logging solutions are also integrated to provide a consistent logging and distributed storage framework to the resources as needed. Finally, this architecture of creation temporal k8s resources for the pipeline steps (testing, building, packaging, etc.) ensures that necessary environment for the the jobs are always clean (not affected by the previously run pipelines).
 
 \begin{figure}[!htb]
    \centering
-   \includegraphics*[width=0.8\columnwidth]{CICD runtime}
+   \includegraphics*[width=0.8\columnwidth]{cicdruntime-v2}
    \caption{CICD at run time}
    \label{fig:cicdruntime}
 \end{figure}
@@ -235,7 +237,7 @@ Inside the cluster, in an isolated K8s namespace, there are the GitLab runner re
 \section{Testing}
 The most important best practice for CI is testing so the main question now is how a generic component of SKA can be tested with the above architecture?
 In SKA, testing has been split into two distinct types: pre-deployment and post-deployment tests. The deployment happens when a runner execute a job with an environment keyword. By doing so, the job is linked to the k8s cluster \textit{syscore}.
-While the pre-deployment tests (namely unit tests) are all made without the real system to be online, the other ones (namely integration and system tests) needs more than one component to be up and running.
+While the pre-deployment tests (namely unit tests) are all made without the real system to be online, the other ones (namely integration and system tests) needs more than one component to be up and running as the tests are mostly using other services and applications.
 SKA is composed by many different modules, each of them with its own repository and different requirements for the components needed for its integration and system testing. For each of them, an umbrella chart has been introduced which enabled the specific component to be deployed together with its requirements.
 In specific, to enable the GitLab pipeline to deploy and test the specific component each repository must:
 \begin{itemize}
@@ -257,11 +259,10 @@ The test job, introduced in section \ref{pipeline}, is composed by the following
     \item post test: delete all resources allocated for the tests
 \end{itemize}
 
-The artifacts are the output of the tests and it will have the report both in xml and json but also other information like the pytest output.
+The artifacts are the output of the tests and it will have the report both in xml and json but also other information like the pytest output so that next steps (mostly packaging and releasing) in the pipeline could be run.
 
 \section{Development Workflow}
-There are two important assumption to understand the SKA development workflow: master branch shall always be stable and branches shall be short lived. With the term stable, it is meant that master branch always compiles and all automated tests run successfully. This also means that Every time a master branch results in a condition of instability, reverting to a condition of stability shall have
-precedence over any other activity on the repository.
+There are two important assumption to understand the SKA development workflow: master branch shall always be stable and branches shall be short lived. With the term stable, it is meant that master branch always compiles and all automated tests run successfully. This also means that every time a master branch results in a condition of instability, reverting to a condition of stability shall have precedence over any other activity on the repository.
 As a result, the selected development workflow for SKA is the following:
 \begin{itemize}
     \item A developer takes a copy of the current code base on which to work
@@ -274,29 +275,30 @@ As a result, the selected development workflow for SKA is the following:
         \item Checks out changes when they occur
         \item Runs static code analysis and provide feedback to the developer
         \item builds the system and runs unit and integration tests on the branch
-        \item Provide feedback to the developer about test fail or success
+        \item Provide feedback to the developer about status of the tests (fail or success)
         \item Provide feedback about coverage metrics
     \end{itemize}
-    \item Once all tests execute successfully on the branch, the developer makes a pull request for merging the changes into master.
-    \item As part of the pull request the code is reviewed by other developers.
+    \item Once all tests execute successfully on the branch, the developer makes a pull request (\textit{i.e. Merge Request in GitLab terms}) for merging the changes into master.
+    \item As part of the pull request the code is reviewed and approved by other developers.
     \item Code is merged into master branch
-    \item The CI server (GitLab)
+    \item Then, the CI server (GitLab)
     \begin{itemize}
-        \item Runs all tests on the master branch
+        \item Runs the whole pipeline again including all the tests on the master branch
         \item Releases deployable artefacts for testing (reports, code analysis, etc.)
         \item Assigns a build label to the version of the code it just built (i.e. docker image version)
         \item Alerts the team if the build or tests fail which fixes the issue asap
+        \item Publishes the successfully build artifacts to the artifact repository
     \end{itemize}
 \end{itemize}
 
 \section{Conclusion}
-The majority of the decisions taken by the Systems Team follow the workflow as described by the Continuous Integration process outlined in the Martin Fowler’s paper. In particular:
+The majority of the decisions taken by the Systems Team follow the workflow as described by the Continuous Integration process outlined in the Martin Fowler’s paper and inspired by the state-of-the-art industry practices\cite{DevOps, CI, CD}. In particular:
 \begin{itemize}
     \item For each component of the system, there is only one repository with minimal use of branching that are short lived;
     \item build, tests and publish of artifacts are automated with the use of few commands;
     \item Every commit triggers a build in a different machine (a container within the K8s cluster);
     \item Once the artifacts are built (docker images, helm charts, etc.), the repository SKAMPI will create automatically a new deployment of the system and more tests are done at that level (i.e. system tests);
-    \item Having a common repository (Nexus and GitLab page) for the code artifacts and for the test results artifacts make it very easy to download the latest changes from every team and for each component;
+    \item Having a common repository (Nexus and GitLab page) for the code artifacts and for the test results artifacts make it very easy to download the latest changes from every team and for each component to enable fast development;
     \item The integration environment is accessible for every developer and, in specific, is a specific namespace in a K8s cluster.
 \end{itemize}
 
