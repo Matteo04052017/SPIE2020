@@ -44,7 +44,7 @@ When creating releases for the end-users, every large software endeavour faces t
 In the Square Kilometre Array (SKA) project, The selected development process is SAFe Agile (Scaled Agile framework) that is incremental and iterative with a specialized team (known as the Systems Team) devoted to supporting the Continuous Integration, Continuous Deployment, test automation and quality.
 
 \subsection{TANGO-controls Overview}
-One of the most important decisions taken by the SKA project is the adoption of the TANGO-controls\cite{tango-controls} framework which is a middleware for connecting software processes together mainly based on the CORBA standard (Common Object Request Broker Architecture), to control physical hardware elements. The standard defines how to exposes the procedures of an object within a software process with the RPC protocol (Remote Procedure Call).  The TANGO framework extends the definition of an object with the concept of a Device which represents a real or virtual device to control.  This exposes commands (that are procedures), and attributes (like the state) and allows both synchronous and asynchronous communication with events generated from the attributes (for instance a change in an attribute value can generate an event). Fig.~\ref{fig:tangodatamodel}  shows a module view of the framework.
+One of the decisions taken by the SKA project is the adoption of the TANGO-controls\cite{tango-controls} framework which is a middleware for connecting software processes together mainly based on the CORBA standard (Common Object Request Broker Architecture), to control physical hardware elements. The standard defines how to exposes the procedures of an object within a software process with the RPC protocol (Remote Procedure Call).  The TANGO framework extends the definition of an object with the concept of a Device which represents a real or virtual device to control.  This exposes commands (that are procedures), and attributes (like the state) and allows both synchronous and asynchronous communication with events generated from the attributes (for instance a change in an attribute value can generate an event). Fig.~\ref{fig:tangodatamodel}  shows a module view of the framework.
 
 \begin{figure}[!htb]
    \centering
@@ -84,27 +84,24 @@ Since all components need to get deployed and tested together, the first decisio
 
 The final product will be a containerized application which will be running in a system for managing those kinds of applications. In specific the selection made for SKA was \textit{Kubernetes (K8s)} for container orchestration~\cite{kubernetes} and \textit{Helm Charts}~\cite{helm} for declaring runtime dependencies for K8s applications. In K8s everything is a resource which may be a service, a volume or a simple pod which is the smallest deployable units of computing consisting of one (or many) container(s). The resources live in a cluster (a set of machines connected together) and share a predefined network (for service discovery), storage and other resources like computing power. On the other hand, helm is a tool for managing Kubernetes deployments with charts where a chart is a package of pre-configured Kubernetes resources.
 
-The SKA repository \textit{SKA-docker}~\cite{SKA-docker} contains the definitions of a containerized TANGO environment and two Helm Charts: tango-base and archiver. The first one enables the installation of base services for a TANGO environment such as MariaDB service container, DatabaseDS service container, the TANGO test device and so on. The archiver enables the HDB++~\cite{hdb} application which is composed of a MariaDB service container, a configuration manager and an event subscriber. Tango-base and archiver provide the basic services and tools for the developers to easily develop their own tango device servers and applications while maintaining a consistent environment.
+The SKA repository \textit{SKA-docker}~\cite{SKA-docker} contains the definitions of a containerized TANGO environment and two Helm Charts: tango-base and archiver. The first one enables the installation of base services for a TANGO environment such as MariaDB service container, DatabaseDS service container, the TANGO test device and so on. The archiver enables the HDB++~\cite{hdb} application which is composed of a MariaDB service container, a configuration manager and an event subscriber. Tango-base and archiver provide the basic services and tools for the developers to easily develop their own tango device servers and applications while maintaining a consistent environment. This project represents the base images from where all repositories from SKA telescope group can extend in order to create their docker images to be used in any helm chart. Fig. \ref{fig:ska-docker} shows a diagram for this project. The TANGO-controls becomes a layer inside the base images and every ska module inherit from those images, in specific from the TANGO python.
+
+\begin{figure}[!htb]
+   \centering
+   \includegraphics*[width=0.8\columnwidth]{ska-docker}
+   \caption{SKA-Docker repository}
+   \label{fig:ska-docker}
+\end{figure}
+
 
 Every Helm Chart contains at a minimum the information concerning the version of the docker image and the pull policy (how to retrieve the image) for the orchestration. It also contains the needed information to correctly initialize the TANGO database (configuration of devices) and how it is exposed to other applications for discovery in the cluster.
 
 Throughout the SKA repositories, \textit{Makefiles} are selected as an abstraction and organisation layer to eliminate language-specific scripts for building, testing and deployment and to promote ease of use in CI/CD. The use of a \textit{Makefile} in each project simplifies the work of containerisation and, overall, the automation of the code building, testing and packaging processes. In fact, with one single command, it is possible to compile the project, generate the docker image and test it by dynamically installing the related Helm Chart for that purpose.
 The Makefile also allows to push the docker images and Helm Charts to the SKA artefact repository and, in general, it also enables the reusability of same build toolchain in different environments such as local development and CI/CD lifecycle.
 
-
-% \subsubsection{TANGO-util library chart}
-% A library Chart is a type of Helm Chart that defines chart primitives or definitions which can be % shared by Helm templates in other charts. In SKAMPI, many charts are collections of TANGO device % servers so it is possible to harmonize their definition with a library. Fig.~\ref{fig:values_data_model} shows a data model diagram for the harmonized values file.
-
-% \begin{figure}[!htb]
-%    \centering
-%    \includegraphics*[width=0.8\columnwidth]{values_data_model}
-%    \caption{Data model for the values file}
-%    \label{fig:values_data_model}
-% \end{figure}
-
 \section{Sub-charts Architecture}
 
-\subsection{Introduction to Helm}
+\subsection{Introduction to Helm} \label{helm}
 A chart can have one or more dependencies charts, called sub-charts. According to the Helm documentation:
 \begin{itemize}
     \item a sub-chart is stand-alone (cannot depend on a parent chart),
@@ -151,55 +148,22 @@ Then the result of the helm install command for chart A will be:
 \end{itemize}
 
 \subsection{Architecture}
-
-The SKA MVP Product Integration, or SKAMPI~\cite{SKAMPI}, is both the set of software artefacts, and the corresponding repository and continuous integration facilities that allow for the development, testing, and integration of the SKA prototype software systems. It represents the main effort to integrate the components from the different SKA elements with each other, with the goal to provide first deployable versions of SKA software. A partial dependency diagram for the helm charts available within this project is represented in fig.~\ref{fig:skampi}.
+Since an helm chart can be in relation of dependency with another chart, this concept can be used for integrating the various SKA element which compose the SKA MVP Product Integration (SKAMPI~\cite{SKAMPI}) that represent the main effort for integrating all the SKA software sub-systems. Fig.~\ref{fig:skampi} shows a simplicistic view of the above concept and it is easy to see how it resemble a hierarchy. 
 
 \begin{figure}[!htb]
    \centering
-   \includegraphics*[width=1\columnwidth]{simple_skampi}
+   \includegraphics*[width=0.8\columnwidth]{simple_skampi}
    \caption{SKAMPI}
    \label{fig:skampi}
 \end{figure}
 
-Leaving out the details of the specific components of SKA, fig.~\ref{fig:skampi} shows that all charts depend on some shared charts, like tango-base (refer to section \ref{SKA-docker}) and, optionally, archiver (refer to section \ref{SKA-docker}) and webjive~\cite{webjive}.
-At the moment, this is modelled in the repository SKAMPI where all charts are installed with helm templating instead of the normal installation. There are several disadvantages in this model specifically:
-
-\begin{itemize}
-    \item Common testing, one place for all testing with an unclear distinction the various types of tests
-    \item Not easy to find logs
-    \item Same K8s namespace for many deployments
-    \item No versioning: charts are not versioned
-\end{itemize}
-
-Because of the above problems, a new architecture has been selected which enables a single-level hierarchy for the shared charts (related to TANGO) and umbrella charts for charts composition (i.e. specific deployment or testing purpose). The rational can be summarized in the following items:
-\begin{itemize}
-    \item every chart can be deployed with its own tango eco-system,
-    \item every chart can have tango-base, webjive and the archiver as dependencies.
-\end{itemize}
-
-Fig. ~\ref{fig:tmc_shared_charts} shows how a generic chart (in this case the SKA component called TMC) which includes the shared charts. Every dependency must have a common condition on it so that it will be possible to disable the shared charts if they are included in the parent umbrella. For instance, if there is the need (for testing purposes) to have the TMC and the OET charts together the result will be fig. ~\ref{fig:tmc_oet_umbrella}.
+Taking into consideration the operational aspect of the helm dependencies describe in section \ref{helm}, the selected helm sub-charts architecture enables a single-level hierarchy with a parent chart, called umbrella, that put together the charts of the hierarchy. While SKAMPI is the composition of the entire hierarchy, it is possible to think of different umbrella charts for other purposes like integration testing between on few elements of the hierarchy. Fig. ~\ref{fig:umbrella_chart} shows the umbrella chart concept: the blu umbrella chart is the entire hierarchy while the red and green ones are for other purposes. This means that every SKA element can perform its integration testing just creating an umbrella chart with the element needed for its integration. 
 
 \begin{figure}[!htb]
    \centering
-   \includegraphics*[width=0.5\columnwidth]{tmc_shared_charts}
-   \caption{Chart TMC with shared charts}
-   \label{fig:tmc_shared_charts}
-\end{figure}
-
-\begin{figure}[!htb]
-   \centering
-   \includegraphics*[width=0.8\columnwidth]{tmc_oet_umbrella}
-   \caption{Umbrella chart with tmc and oet charts}
-   \label{fig:tmc_oet_umbrella}
-\end{figure}
-
-Fig. ~\ref{fig:umbrella_skampi} is the result of the refactoring of fig. ~\ref{fig:skampi} with the new architecture.
-
-\begin{figure}[!htb]
-   \centering
-   \includegraphics*[width=1\columnwidth]{umbrella_skampi}
-   \caption{Umbrella chart for skampi: initial model refactored}
-   \label{fig:umbrella_skampi}
+   \includegraphics*[width=0.5\columnwidth]{umbrella_chart.png}
+   \caption{The umbrella chart concept}
+   \label{fig:umbrella_chart}
 \end{figure}
 
 \section{Pipeline} \label{pipeline}
@@ -225,7 +189,7 @@ The entry point of the diagram is the Pipeline that is composed of many jobs (i.
 The pipeline is respected as the main hub of the software development in which code is built, tested, verified, published and integrated. The above steps are used in local development (as same shell scripts are available thanks to the \textit{Makefile} targets), merge workflow, QA, integration and release. Moreover, by having an almost similar environment for different stages of the software lifecycle, the differences between development and operations are eliminated.
 
 Fig.~\ref{fig:cicdruntime} shows (without a specific formalism) the run-time behaviour of the selected technologies working together. At the centre of the diagram, there is a Kubernetes cluster defined for every project in the SKA telescope group (and called \textit{syscore}). Outside the K8s cluster, there are the GitLab code repositories and Pages\cite{gitlab} (part of GitLab which represent a generic artefact used for storing pipeline artefacts such as test result), the Nexus Artifact repository\cite{nexus} to store packaged code artefacts, the ELK stack (Elasticsearch, Logstash and Kibana)\cite{elastcsearch} for logging, prometheus\cite{prometheus} for metric collection and ceph\cite{ceph} for a distributed storage solution. 
-Inside the cluster, in an isolated K8s namespace, there are the GitLab runner related K8s resources which check, every 30 seconds, if there are pending pipelines triggered manually or pulled by the resources.  If the runner finds a pipeline, it creates a K8s pod which executes all the jobs defined in the configuration file (and part of the git revision). Each created pod can (potentially) deploy a (umbrella) chart needed for the specific testing of the repository in an isolated namespace (i.e. an isolated environment). The deployment installed can then be tested and the result of the job will be reported to GitLab producing artefacts that will be stored in the correct artefacts repository. During any stage of the pipeline, jobs could also download necessary dependencies from the artefact repository. Depending on the type of job, the pipeline is also used for deploying the permanent running version of the SKAMPI or any other resources that are needed. \textit{syscore} Kubernetes cluster is also equipped with monitoring solutions to examine the health and performance of the cluster and any resource that is deployed in it. Storage and logging solutions are also integrated to provide a consistent logging and distributed storage framework to the resources as needed. Finally, this architecture of creation temporal k8s resources for the pipeline steps (testing, building, packaging, etc.) ensures that necessary environment for the jobs is always clean (not affected by the previously run pipelines).
+Inside the cluster, in an isolated K8s namespace, there are the GitLab runner related K8s resources which check, every 30 seconds, if there are pending pipelines triggered manually or pulled by the resources. If the runner finds a pipeline, it creates a K8s pod for each job defined in the configuration file (and part of the git revision). Each created pod can (potentially) deploy a (umbrella) chart needed for the specific testing of the repository in an isolated namespace (i.e. an isolated environment). The deployment installed can then be tested and the result of the job will be reported to GitLab producing artefacts that will be stored in the correct artefacts repository. During any stage of the pipeline, jobs could also download necessary dependencies from the artefact repository. Depending on the type of job, the pipeline is also used for deploying the permanent running version of the SKAMPI or any other resources that are needed. \textit{syscore} Kubernetes cluster is also equipped with monitoring solutions to examine the health and performance of the cluster and any resource that is deployed in it. Storage and logging solutions are also integrated to provide a consistent logging and distributed storage framework to the resources as needed. Finally, this architecture of creation temporal k8s resources for the pipeline steps (testing, building, packaging, etc.) ensures that necessary environment for the jobs is always clean (not affected by the previously run pipelines).
 
 \begin{figure}[!htb]
    \centering
